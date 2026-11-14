@@ -5,10 +5,9 @@
     return i18n && i18n.t ? i18n.t(key, params, fallback) : fallback;
   }
 
-  // WebView HTML video is the default on every supported Android version.
-  // Media3 is kept as a bounded fallback for devices whose WebView cannot
-  // load the media. The Android version alone does not prove which decoder or
-  // surface path is stable on a vendor TV build.
+  // The standard Android edition uses Media3 as its primary and only video
+  // playback path. WebView continues to render the application UI, but its
+  // HTMLVideoElement is never assigned a media source or asked to decode.
   var domVideo = document.getElementById('hero-video');
   var bridge = window.HongguoNativePlayer;
   var nativeEnabled = false;
@@ -335,6 +334,16 @@
   function fallbackToDom() {
     if (fixedNative) return;
     if (!isNative()) return;
+    if (primaryMedia3) {
+      // Standard edition is Media3-only: surface native failure to the UI
+      // instead of silently restarting the same stream through WebView HTML5.
+      notifyPlaybackActive(false);
+      state.paused = true; state.started = false; state.readyState = 0;
+      nativeRequested = false;
+      proxy.error = { code: 3, message: t('content.media3Failed', 'Media3 播放失败') };
+      dispatch('error', { type: 'error', target: proxy });
+      return;
+    }
     clearFallbackTimer();
     try { if (bridge.stop) bridge.stop(); } catch (ignoredStop) {}
     clearMedia3Preference();
@@ -420,7 +429,7 @@
     state.currentTime = 0; state.startPosition = 0; state.duration = NaN; state.paused = true; state.ended = false;
     state.seeking = false; state.readyState = 0; state.videoWidth = 0; state.videoHeight = 0;
     state.seekPending = false; state.started = false;
-    // The MPV edition never loads media into WebView, including between episodes.
+    // Native-only editions never load media into WebView, including between episodes.
     if (!primaryNative) domVideo.src = next;
     else {
       proxy.error = null;
