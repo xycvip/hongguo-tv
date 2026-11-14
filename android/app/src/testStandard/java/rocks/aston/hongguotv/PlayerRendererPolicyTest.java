@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public final class PlayerRendererPolicyTest {
     @Test
-    public void standardPlaybackKeepsWebViewHtml5AsPrimary() {
+    public void standardPlaybackUsesMedia3AsPrimary() {
         assertTrue(PlayerRendererPolicy.primaryPlayback());
     }
 }
