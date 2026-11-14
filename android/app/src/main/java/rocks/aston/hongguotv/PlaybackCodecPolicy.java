@@ -20,11 +20,11 @@ final class PlaybackCodecPolicy {
         return forceSoftwareHevc && "video/hevc".equals(mime) && !platformSoftware(name);
     }
     static boolean preferSoftware(String mime, int sdk) {
-        // Android 9 and earlier TV firmwares commonly expose an HEVC hardware
-        // decoder that advances audio/clock but presents black video frames.
-        // Prefer the platform software decoder there, while still allowing a
-        // hardware decoder when no software implementation is advertised.
-        return "video/hevc".equals(mime) && sdk >= 24 && sdk <= 28;
+        // Prefer device hardware decoders on every supported Android version.
+        // A platform software decoder remains available only as a bounded
+        // HEVC recovery path when Media3 reports that the selected hardware
+        // decoder exceeds the advertised capabilities before the first frame.
+        return false;
     }
     static boolean allowsInMode(String mime, String name, boolean compatibility) {
         if (!allowsDecoder(mime)) return false;
