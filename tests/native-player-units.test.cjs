@@ -327,7 +327,7 @@ test('WebView remains the default until native fallback is requested', () => {
   proxy.pause();
 });
 
-test('explicit Media3-primary mode keeps one bounded HTML5 fallback', async () => {
+test('Media3-primary mode never falls back to HTML5 after a native failure', async () => {
   const f = fixture('media3'), video = f.document.getElementById('hero-video');
   video.src = '/media/test.mp4';
   await video.play();
@@ -337,24 +337,27 @@ test('explicit Media3-primary mode keeps one bounded HTML5 fallback', async () =
   f.context.window.HongguoNativePlayback.event(f.bridge.lastId, 'frame', {width: 1280, height: 720});
   assert.equal(f.context.window.HongguoNativePlaybackAdapter.diagnostics().final_path, 'Media3');
   f.context.window.HongguoNativePlayback.event(f.bridge.lastId, 'error', {kind: 'decoder'});
-  assert.equal(f.rootClassNames.has('native-playback'), false);
+  assert.equal(f.rootClassNames.has('native-playback'), true, 'failed native playback must not expose HTML5 video');
   assert.equal(video.src, '/media/test.mp4');
+  assert.equal(video.error.message, 'Media3 播放失败');
+  assert.equal(f.domVideo.src, '', 'the WebView video element must remain unloaded');
   assert.equal(f.bridge.plays, 1, 'a Media3 failure must not loop back into native playback');
 });
 
-test('Media3-primary mode retries for a new source after HTML5 fallback', async () => {
+test('Media3-primary mode starts a fresh native session for a new source after failure', async () => {
   const f = fixture('media3'), video = f.document.getElementById('hero-video');
   video.src = '/media/first.mp4';
   await video.play();
   const firstId = f.bridge.lastId;
   f.context.window.HongguoNativePlayback.event(firstId, 'error', {kind: 'decoder'});
-  assert.equal(f.rootClassNames.has('native-playback'), false);
+  assert.equal(f.rootClassNames.has('native-playback'), true);
   video.src = '/media/second.mp4';
   assert.equal(f.rootClassNames.has('native-playback'), true);
   await video.play();
   assert.equal(f.bridge.plays, 2);
   assert.notEqual(f.bridge.lastId, firstId);
   assert.equal(f.bridge.lastPayload.source, 'http://127.0.0.1/media/second.mp4');
+  assert.equal(f.domVideo.src, '', 'new Media3 sources must not be assigned to HTML5');
 });
 
 test('WebView media error switches to Media3 once and keeps the playback position', () => {
