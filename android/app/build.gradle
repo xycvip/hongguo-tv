@@ -44,7 +44,7 @@ android {
             }
             resValue "string", "app_name", android5Compat ? "红果短剧 · Android 5 兼容版" : "红果短剧"
             buildConfigField "String", "VARIANT_ID", android5Compat ? '"android5"' : '"standard"'
-            buildConfigField "String", "PLAYER_ENGINE", '"webview_media3"'
+            buildConfigField "String", "PLAYER_ENGINE", '"media3"'
         }
         mpv {
             dimension "player"
@@ -102,7 +102,7 @@ gradle.taskGraph.whenReady { graph ->
 dependencies {
     implementation "androidx.core:core:1.13.1"
     implementation "androidx.tvprovider:tvprovider:1.0.0"
-    // Keep standard's v0.2.136 Media3 fallback independent of the MPV flavor.
+    // Standard edition uses Media3 directly; dependencies remain isolated from MPV.
     standardImplementation "androidx.media3:media3-exoplayer:1.8.0"
     standardImplementation "androidx.media3:media3-exoplayer-hls:1.8.0"
     mpvImplementation "androidx.media3:media3-exoplayer:1.11.1"

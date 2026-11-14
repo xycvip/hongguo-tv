@@ -19,8 +19,10 @@ public class PlaybackCodecPolicyTest {
         assertFalse(PlaybackCodecPolicy.allowsInMode("audio/mp4a-latm", null, true));
     }
 
-    @Test public void androidNinePrefersSoftwareHevcButNewerSystemsKeepHardwareOrder() {
-        assertTrue(PlaybackCodecPolicy.preferSoftware("video/hevc", 28));
+    @Test public void allAndroidVersionsPreferHardwareDecoders() {
+        assertFalse(PlaybackCodecPolicy.preferSoftware("video/hevc", 23));
+        assertFalse(PlaybackCodecPolicy.preferSoftware("video/hevc", 24));
+        assertFalse(PlaybackCodecPolicy.preferSoftware("video/hevc", 28));
         assertFalse(PlaybackCodecPolicy.preferSoftware("video/hevc", 29));
         assertFalse(PlaybackCodecPolicy.preferSoftware("video/avc", 28));
     }

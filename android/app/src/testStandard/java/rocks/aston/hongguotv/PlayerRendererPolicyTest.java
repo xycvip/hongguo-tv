@@ -1,12 +1,12 @@
 package rocks.aston.hongguotv;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 public final class PlayerRendererPolicyTest {
     @Test
-    public void standardPlaybackKeepsWebViewHtml5AsPrimary() {
-        assertFalse(PlayerRendererPolicy.primaryPlayback());
+    public void standardPlaybackUsesMedia3AsPrimary() {
+        assertTrue(PlayerRendererPolicy.primaryPlayback());
     }
 }
